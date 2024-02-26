@@ -9,6 +9,8 @@ from torchvision.datasets.folder import ImageFolder, default_loader
 from timm.data.constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
 from timm.data import create_transform
 
+# for pde data
+from load_pde_data import DatasetSingle, DatasetMult
 
 class INatDataset(ImageFolder):
     def __init__(self, root, train=True, year=2018, transform=None, target_transform=None,
@@ -73,6 +75,28 @@ def build_dataset(is_train, args):
         nb_classes = dataset.nb_classes
 
     return dataset, nb_classes
+
+def build_pde_dataset(is_train, args):
+    if args.data_set == 'PDE_incompNS':
+        # filename
+        model_name = flnm[:-5] + 'viMAMBA'
+    
+        # Initialize the dataset and dataloader
+        #train_data = DatasetSingle(flnm,
+        #                        saved_folder=base_path,
+        #                        reduced_resolution=reduced_resolution,
+        #                        reduced_resolution_t=reduced_resolution_t,
+        #                        reduced_batch=reduced_batch,
+        #                        initial_step=initial_step)
+
+        dataset = DatasetSingle(flnm='ns_incom_inhom_2d_512-0.h5',
+                                saved_folder=args.data_path,
+                                reduced_resolution=1,
+                                reduced_resolution_t=1,
+                                reduced_batch=1,
+                                initial_step=10)
+    
+    return dataset
 
 
 def build_transform(is_train, args):
