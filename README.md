@@ -43,8 +43,9 @@ Recently the state space models (SSMs) with efficient hardware-aware designs, i.
 
   - `conda create -n your_env_name python=3.10.13`
 
-- torch 2.1.1 + cu118
-  - `pip install torch==2.1.1 torchvision==0.16.1 torchaudio==2.1.1 --index-url https://download.pytorch.org/whl/cu118`
+- torch 2.1.1 + cu123
+  - `pip install torch==2.1.1 torchvision torchaudio==2.1.1 -f https://download.pytorch.org/whl/cu123/torch_stable.html`
+  - `pip install timm`
 
 - Requirements: vim_requirements.txt
   - `pip install -r vim/vim_requirements.txt`

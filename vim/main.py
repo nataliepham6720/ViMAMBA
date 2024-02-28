@@ -17,7 +17,7 @@ from timm.scheduler import create_scheduler
 from timm.optim import create_optimizer
 from timm.utils import NativeScaler, get_state_dict, ModelEma
 
-from datasets import build_dataset
+from datasets import build_dataset, build_pde_dataset
 from engine import train_one_epoch, evaluate
 from losses import DistillationLoss
 from samplers import RASampler
@@ -36,8 +36,8 @@ import mlflow
 def get_args_parser():
     parser = argparse.ArgumentParser('DeiT training and evaluation script', add_help=False)
     parser.add_argument('--batch-size', default=64, type=int)
-    parser.add_argument('--epochs', default=300, type=int)
-    parser.add_argument('--bce-loss', action='store_true')
+    parser.add_argument('--epochs', default=2, type=int)
+    parser.add_argument('--loss', default='BCE', choices=['BCE','MSE'], type=str, help='Loss function')
     parser.add_argument('--unscale-lr', action='store_true')
 
     # Model parameters
@@ -409,8 +409,11 @@ def main(args):
     else:
         criterion = torch.nn.CrossEntropyLoss()
         
-    if args.bce_loss:
+    if args.loss=='BCE':
         criterion = torch.nn.BCEWithLogitsLoss()
+    elif args.loss=='MSE':
+        criterion = torch.nn.MSELoss(reduction="mean")
+        # loss_val_min = np.infty
         
     teacher_model = None
     if args.distillation_type != 'none':
@@ -459,7 +462,7 @@ def main(args):
         
     if args.eval:
         test_stats = evaluate(data_loader_val, model, device, amp_autocast)
-        print(f"Accuracy of the network on the {len(dataset_val)} test images: {test_stats['acc1']:.1f}%")
+        print(f"Accuracy of the network on the {len(dataset_val)} test images: {test_stats['acc1']:.1f}")
         return
     
     # log about
@@ -497,7 +500,7 @@ def main(args):
              
 
         test_stats = evaluate(data_loader_val, model, device, amp_autocast)
-        print(f"Accuracy of the network on the {len(dataset_val)} test images: {test_stats['acc1']:.1f}%")
+        print(f"Accuracy of the network on the {len(dataset_val)} test images: {test_stats['acc1']:.1f}")
         
         if max_accuracy < test_stats["acc1"]:
             max_accuracy = test_stats["acc1"]
@@ -514,7 +517,7 @@ def main(args):
                         'args': args,
                     }, checkpoint_path)
             
-        print(f'Max accuracy: {max_accuracy:.2f}%')
+        print(f'Max accuracy: {max_accuracy:.2f}')
 
         log_stats = {**{f'train_{k}': v for k, v in train_stats.items()},
                      **{f'test_{k}': v for k, v in test_stats.items()},

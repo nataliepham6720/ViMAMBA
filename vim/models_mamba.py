@@ -208,7 +208,7 @@ class VisionMamba(nn.Module):
                  if_abs_pos_embed=False,
                  if_rope=False,
                  if_rope_residual=False,
-                 bimamba_type="none",
+                 bimamba_type='none',
                  if_cls_token=False,
                  **kwargs):
         factory_kwargs = {"device": device, "dtype": dtype}
@@ -256,6 +256,7 @@ class VisionMamba(nn.Module):
         inter_dpr = [0.0] + dpr
         self.drop_path = DropPath(drop_path_rate) if drop_path_rate > 0. else nn.Identity()
                 # transformer blocks
+        # print('bimamba: ', bimamba_type)
         self.layers = nn.ModuleList(
             [
                 create_block(
@@ -625,7 +626,7 @@ def create_block(
     if ssm_cfg is None:
         ssm_cfg = {}
     factory_kwargs = {"device": device, "dtype": dtype}
-    mixer_cls = partial(Mamba, layer_idx=layer_idx, bimamba_type=bimamba_type, if_devide_out=if_devide_out, init_layer_scale=init_layer_scale, **ssm_cfg, **factory_kwargs)
+    mixer_cls = partial(Mamba, layer_idx=layer_idx) #, if_devide_out=if_devide_out, init_layer_scale=init_layer_scale, **ssm_cfg, **factory_kwargs) # bimamba_type=bimamba_type
     norm_cls = partial(
         nn.LayerNorm if not rms_norm else RMSNorm, eps=norm_epsilon, **factory_kwargs
     )
@@ -638,6 +639,7 @@ def create_block(
         residual_in_fp32=residual_in_fp32,
     )
     block.layer_idx = layer_idx
+    print(bimamba_type)
     return block
 
 
@@ -1016,7 +1018,7 @@ class VisionMamba(nn.Module):
 @register_model
 def vim_tiny_patch16_224_bimambav2_final_pool_mean_abs_pos_embed_with_midclstok_div2(pretrained=False, **kwargs):
     model = VisionMamba(
-        patch_size=16, embed_dim=192, depth=24, rms_norm=True, residual_in_fp32=True, fused_add_norm=True, final_pool_type='mean', if_abs_pos_embed=True, if_rope=False, if_rope_residual=False, bimamba_type="v2", if_cls_token=True, if_devide_out=True, use_middle_cls_token=True, **kwargs)
+        patch_size=8, embed_dim=192, depth=24, rms_norm=True, residual_in_fp32=True, fused_add_norm=True, final_pool_type='mean', if_abs_pos_embed=True, if_rope=False, if_rope_residual=False, bimamba_type='v2', if_cls_token=True, if_devide_out=True, use_middle_cls_token=True, **kwargs)
     model.default_cfg = _cfg()
     if pretrained:
         checkpoint = torch.hub.load_state_dict_from_url(
