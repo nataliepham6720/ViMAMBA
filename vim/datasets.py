@@ -10,7 +10,7 @@ from timm.data.constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
 from timm.data import create_transform
 
 # for pde data
-from load_pde_data import DatasetSingle, DatasetMult
+# from load_pde_data import DatasetSingle, DatasetMult
 
 class INatDataset(ImageFolder):
     def __init__(self, root, train=True, year=2018, transform=None, target_transform=None,

@@ -639,7 +639,7 @@ def create_block(
         residual_in_fp32=residual_in_fp32,
     )
     block.layer_idx = layer_idx
-    print(bimamba_type)
+    # print(bimamba_type)
     return block
 
 

@@ -47,7 +47,7 @@ def train_one_epoch(model: torch.nn.Module, criterion: DistillationLoss,
         if args.cosub:
             samples = torch.cat((samples,samples),dim=0)
             
-        if args.bce_loss:
+        if args.loss=='BCE':
             targets = targets.gt(0.0).type(targets.dtype)
          
         with amp_autocast():
